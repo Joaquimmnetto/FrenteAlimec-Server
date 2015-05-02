@@ -1,62 +1,77 @@
 package br.alimec.server.main;
 
+import java.awt.SecondaryLoop;
 import java.io.FileNotFoundException;
-import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 
 import br.alimec.server.commands.Command;
 
 public class Log {
 
-	private PrintWriter out;
-	private PrintWriter err;
-	private PrintWriter file;
+	private PrintStream out;
+	private PrintStream err;
+	private PrintStream file;
 
-	public Log(OutputStream mainOut, OutputStream mainError) {
-		this.out = new PrintWriter(mainOut);
+	private static Log standardLog;
+
+	public static Log getStandardLog() {
+		if (standardLog == null) {
+			standardLog = new Log(System.out, System.err);
+		}
+		return standardLog;
+	}
+
+	public Log(PrintStream mainOut, PrintStream mainError) {
+		this.out = mainOut;
+		this.err = mainError;
 
 	}
 
-	public Log(OutputStream mainOut, OutputStream mainError,
-			OutputStream secondary) throws FileNotFoundException {
-		this.out = new PrintWriter(mainOut);
-		this.err = new PrintWriter(mainError);
+	public Log(PrintStream mainOut, PrintStream mainError, PrintStream secondary)
+			throws FileNotFoundException {
+		this.out = mainOut;
+		this.err = mainError;
 		if (secondary != null) {
-			this.file = new PrintWriter(secondary);
+			this.file = secondary;
 		}
 	}
 
-	public void println(String message) {
+	public synchronized void println(String message) {
 		out.println(message);
 		if (file != null) {
 			file.println(message);
 		}
 	}
 
-	public void printlnErr(String message) {
+	public synchronized void printlnErr(String message) {
 		err.println(message);
 		if (file != null) {
 			file.println(message);
 		}
 	}
 
-	public void printException(Exception e, Command c) {
-		printlnErr("Erro enquanto executando: " + c.toString());
-		printlnErr("");
+	public synchronized void printException(Exception e, Command c) {
+		if (c != null) {
+			printlnErr("Erro enquanto executando: " + c.toString());
+			printlnErr("");
+		}
+
 		e.printStackTrace(getErrorWriter());
-		e.printStackTrace(getSecondaryWriter());
+		if(file != null){
+			e.printStackTrace(getSecondaryWriter());
+		}
+			
 	}
 
-	public PrintWriter getMainPrintWriter() {
+	public PrintStream getMainPrintStream() {
 		return out;
 	}
 
-	public PrintWriter getErrorWriter() {
+	public PrintStream getErrorWriter() {
 		return err;
 	}
 
-	public PrintWriter getSecondaryWriter() {
+	public PrintStream getSecondaryWriter() {
 		return file;
 	}
 

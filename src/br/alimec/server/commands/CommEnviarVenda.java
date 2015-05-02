@@ -2,10 +2,14 @@ package br.alimec.server.commands;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import br.alimec.poiDAO.ItemVendaDAO;
@@ -17,10 +21,16 @@ public class CommEnviarVenda extends Command {
 	public static final String PLANILHA_2_QUADRIMESTRE = "VENDAS %d - Mai-Ago.xls";
 	public static final String PLANILHA_3_QUADRIMESTRE = "VENDAS %d - Set-Dez.xls";
 
-	// params
-	static enum Argumentos {
-		DATA, QUANTIDADE, UNIDADE, CODITEM, CLIENTE, COMPLEMENTO, MEIO_PGTO, VALOR_TOTAL;
+	static enum ArgumentosVenda {
+		DATA, CLIENTE, CPFCNPJ, ITENS;
+		@Override
+		public String toString() {
+			return super.name().toLowerCase();
+		}
+	}
 
+	static enum ArgumentosItem {
+		DATA, QUANTIDADE, UNIDADE, CODITEM, CLIENTE, COMPLEMENTO, MEIO_PGTO, VALOR_TOTAL;
 		@Override
 		public String toString() {
 			return super.name().toLowerCase();
@@ -39,64 +49,63 @@ public class CommEnviarVenda extends Command {
 	};
 
 	@Override
-	public JSONObject processCommand(JSONObject[] params) {
+	public JSONObject processCommand(JSONArray vendas) {
 
-		JSONObject obj = params[0];
+		List<ItemVendaTO> itemTOs = new ArrayList<>();
+
 		JSONObject resp = new JSONObject();
-
-		Date data = new Date(obj.getLong(Argumentos.DATA.name()));
-
 		try {
-			ItemVendaDAO dao = new ItemVendaDAO(escolherPlanilha(data));
+			for (int i = 0; i < vendas.length(); i++) {
+				JSONObject venda = vendas.getJSONObject(i);
+				
+				JSONArray itens = venda.getJSONArray(ArgumentosVenda.ITENS.toString());
+				
+				for (int j = 0; j < itens.length(); j++) {
 
-			MeiosPgto meioPgto = MeiosPgto.valueOf(obj
-					.getString(Argumentos.MEIO_PGTO.toString()));
-			double valorTotal = obj
-					.getDouble(Argumentos.VALOR_TOTAL.toString());
-			double[] modosPgto = new double[4];
-			modosPgto[meioPgto.ordinal()] = valorTotal;
+					JSONObject item = itens.getJSONObject(j);
 
-			double quantidade = obj.getDouble(Argumentos.QUANTIDADE.toString());
-			String unidade = obj.getString(Argumentos.UNIDADE.toString());
-			String codItem = obj.getString(Argumentos.CODITEM.toString());
-			String cliente = obj.getString(Argumentos.CLIENTE.toString());
-			String complemento = obj.getString(Argumentos.COMPLEMENTO
-					.toString());
+					Date data = new Date(item.getLong(ArgumentosItem.DATA
+							.name()));
 
-			dao.addItemVenda(data, modosPgto, quantidade, unidade, codItem,
-					cliente, complemento);
+					MeiosPgto meioPgto = MeiosPgto.valueOf(item
+							.getString(ArgumentosItem.MEIO_PGTO.toString()));
+					double valorTotal = item
+							.getDouble(ArgumentosItem.VALOR_TOTAL.toString());
+					double[] modosPgto = new double[4];
+					modosPgto[meioPgto.ordinal()] = valorTotal;
+
+					double quantidade = item
+							.getDouble(ArgumentosItem.QUANTIDADE.toString());
+					String unidade = item.getString(ArgumentosItem.UNIDADE
+							.toString());
+					String codItem = item.getString(ArgumentosItem.CODITEM
+							.toString());
+					String cliente = item.getString(ArgumentosItem.CLIENTE
+							.toString());
+					String complemento = item
+							.getString(ArgumentosItem.COMPLEMENTO.toString());
+
+					itemTOs.add(new ItemVendaTO(data, valorTotal, modosPgto,
+							quantidade, unidade, codItem, cliente, complemento));
+				}
+				for (ItemVendaTO itemTO : itemTOs) {
+					ItemVendaDAO dao = ItemVendaDAO.getInstance(itemTO.getData());
+
+					dao.addItemVenda(itemTO.getData(), itemTO.getModosPgto(),
+							itemTO.getQuantidade(), itemTO.getUnidade(),
+							itemTO.getCodItem(), itemTO.getCliente(),
+							itemTO.getComplemento());
+				}
+			}
+			ItemVendaDAO.comitarTodos();
 			resp = JSONUtils.gerarJSONSucesso();
-		} catch (FileNotFoundException e) {
-			resp = JSONUtils
-					.gerarJSONFalha("Arquivo para essa data não existe");
+
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (IOException e) {
-			resp = JSONUtils.gerarJSONFalha("Erro inesperado de IO");
-			e.printStackTrace();
+			resp = JSONUtils.gerarJSONFalha(e);
 		}
 
 		return resp;
-	}
-
-	private String escolherPlanilha(Date data) {
-
-		Calendar cal = GregorianCalendar.getInstance();
-		cal.setTime(data);
-
-		switch ((cal.get(Calendar.MONTH) - 1) / 4) {
-		case 0:
-			return String.format(PLANILHA_1_QUADRIMESTRE,
-					cal.get(Calendar.YEAR));
-		case 1:
-			return String.format(PLANILHA_2_QUADRIMESTRE,
-					cal.get(Calendar.YEAR));
-		case 2:
-			return String.format(PLANILHA_3_QUADRIMESTRE,
-					cal.get(Calendar.YEAR));
-
-		}
-
-		return null;
 	}
 
 }

@@ -1,11 +1,11 @@
 package br.alimec.server.main;
 
 import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-import br.alimec.server.connect.ConexaoInfo;
 import br.alimec.server.connect.Server;
+import br.alimec.server.connect.ServerWorker;
 
 public class Main {
 
@@ -13,34 +13,33 @@ public class Main {
 
 	public static void main(String[] args) {
 		int porta = 9009;
-		PrintStream log = System.out;
+		Executor exec = Executors.newFixedThreadPool(5);
+		
+		Log log = new Log(System.out, System.err);
 		
 		log.println("Iniciando Servidor na porta " + porta);
 		Server server = new Server(porta);
-		log.println("Aguardando conexão...");
-
-		try {
-			ConexaoInfo info = server.listen();
-			log.println("Conexão com " + info.toString() + " estabelecida.");
-
-			String response = server.doCommand();
-			log.println("Comando executado: " + server.getLastCommand());
-			log.println("Resposta: " + response);
-			log.println("Enviando resposta...");
-			server.sendResponse(response);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-//			log.printException(e, server.getLastCommand());
-		
-		} finally {
-			log.println("Closing connection...");
+		boolean running = true;	
+		while(running){
 			try {
-				server.close();
-			} catch (IOException e) {
+				log.println("\nAguardando conexoes...");
+				ServerWorker worker = server.listen();
+				log.println("Conexao com " + worker.getAddress()+":"+worker.getPort() + " estabelecida.");
+				
+				exec.execute(worker);
+				
+			} catch (Exception e) {
 				e.printStackTrace();
-//				log.printException(e, server.getLastCommand());
-			}
+	//			log.printException(e, server.getLastCommand());
+			
+			} 
+		}
+		
+		try {
+			server.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 	}

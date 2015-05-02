@@ -8,7 +8,7 @@ public class JSONUtils {
 	
 	public static JSONObject gerarJSONSucesso(){
 		return new JSONObject().put("success", true)
-						.put("message", "Operação realizada com sucesso");
+						.put("message", "Operacao realizada com sucesso");
 	}
 	
 	

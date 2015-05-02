@@ -1,12 +1,15 @@
 package br.alimec.server.commands;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import com.sun.xml.internal.ws.util.StringUtils;
 
 public abstract class Command {
 
 	public static Command createCommand(String commandToken)
 			throws ClassNotFoundException {
-
+		commandToken = StringUtils.capitalize(commandToken);
 		String packName = Command.class.getPackage().getName();
 
 		Class<? extends Command> commClass = (Class<? extends Command>) Class
@@ -23,6 +26,6 @@ public abstract class Command {
 
 	}
 
-	public abstract JSONObject processCommand(JSONObject[] params);
+	public abstract JSONObject processCommand(JSONArray params);
 
 }
