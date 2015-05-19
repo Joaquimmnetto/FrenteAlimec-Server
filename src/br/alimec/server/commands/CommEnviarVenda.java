@@ -1,25 +1,16 @@
 package br.alimec.server.commands;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import br.alimec.poiDAO.ItemVendaDAO;
 import br.alimec.server.main.JSONUtils;
 
 public class CommEnviarVenda extends Command {
-
-	public static final String PLANILHA_1_QUADRIMESTRE = "VENDAS %d - Jan-Abr.xls";
-	public static final String PLANILHA_2_QUADRIMESTRE = "VENDAS %d - Mai-Ago.xls";
-	public static final String PLANILHA_3_QUADRIMESTRE = "VENDAS %d - Set-Dez.xls";
 
 	static enum ArgumentosVenda {
 		DATA, CLIENTE, CPFCNPJ, ITENS;
