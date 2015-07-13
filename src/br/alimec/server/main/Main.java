@@ -9,7 +9,7 @@ import br.alimec.server.connect.ServerWorker;
 
 public class Main {
 
-	
+	//TODO: STATUS ATUAL: TESTAR O DAO DAS PLANILHAS, CLIENTE-SERVIDOR ESTA OKAY :D
 
 	public static void main(String[] args) {
 		int porta = 9009;

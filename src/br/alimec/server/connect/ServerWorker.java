@@ -69,7 +69,7 @@ public class ServerWorker implements Runnable {
 			out.write(255);
 			out.flush();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.printException(e, command);
 		}
 		try {
 			comm.close();

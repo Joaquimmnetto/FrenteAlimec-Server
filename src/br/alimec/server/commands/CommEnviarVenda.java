@@ -54,12 +54,11 @@ public class CommEnviarVenda extends Command {
 				for (int j = 0; j < itens.length(); j++) {
 
 					JSONObject item = itens.getJSONObject(j);
-
 					Date data = new Date(item.getLong(ArgumentosItem.DATA
-							.name()));
+							.toString()));
 
 					MeiosPgto meioPgto = MeiosPgto.valueOf(item
-							.getString(ArgumentosItem.MEIO_PGTO.toString()));
+							.getString(ArgumentosItem.MEIO_PGTO.toString()).toUpperCase());
 					double valorTotal = item
 							.getDouble(ArgumentosItem.VALOR_TOTAL.toString());
 					double[] modosPgto = new double[4];
