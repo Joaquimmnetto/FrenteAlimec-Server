@@ -1,27 +1,34 @@
 package br.alimec.server.connect;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import br.alimec.server.main.Log;
 import br.alimec.server.main.Main;
 
-public class Server {
+public class LookupServer {
 
-	private ServerSocket sSock;
+	private DatagramSocket sock;
+	private byte[] buffer = new byte[512];
+
 	private Executor workerExec = Executors.newFixedThreadPool(Main
 			.getThreadPoolSize());
 	private Thread serverThread;
 	private boolean running;
-	private Log log = Log.getStandardLog();
 
-	public Server(int porta) {
+	public LookupServer(int lookupPort) {
 		try {
-			sSock = new ServerSocket(porta);
-		} catch (IOException e) {
+			sock = new DatagramSocket(lookupPort);
+			buffer = new byte[512];
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -33,23 +40,15 @@ public class Server {
 
 				@Override
 				public void run() {
-					log.println("Aguardando conexoes...");
 					while (!serverThread.isInterrupted() && running) {
-						ServerWorker worker = listen();
+						LookupWorker worker = listen();
 						if (worker == null) {
 							continue;
 						}
 
-						log.println("Conexao com " + worker.getAddress() + ":"
-								+ worker.getPort() + " estabelecida.");
-
 						workerExec.execute(worker);
 					}
-					try {
-						sSock.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+					sock.close();
 				}
 			});
 			running = true;
@@ -59,23 +58,24 @@ public class Server {
 
 	public void stop() {
 		running = false;
+		serverThread = null;
+
 	}
 
-	public ServerWorker listen() {
+	public LookupWorker listen() {
+		DatagramPacket pack = new DatagramPacket(buffer, 512);
 		try {
-			return new ServerWorker(sSock.accept());
-		} catch (IOException e) {
-			e.printStackTrace();
+			sock.receive(pack);
+			new JSONObject(new String(pack.getData()));
+			return new LookupWorker(sock,pack);
+
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (JSONException e) {
 		}
 
 		return null;
 
-	}
-
-	public void close() throws IOException {
-		if (sSock != null) {
-			sSock.close();
-		}
 	}
 
 }
