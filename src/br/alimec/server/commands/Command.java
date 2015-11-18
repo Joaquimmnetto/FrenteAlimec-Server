@@ -3,6 +3,8 @@ package br.alimec.server.commands;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import br.alimec.server.main.Log;
+
 import com.sun.xml.internal.ws.util.StringUtils;
 
 public abstract class Command {
@@ -18,9 +20,9 @@ public abstract class Command {
 		try {
 			return commClass.newInstance();
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			Log.getStandardLog().printException(e, null);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			Log.getStandardLog().printException(e, null);
 		}
 		return null;
 

@@ -14,11 +14,12 @@ public class ItemVendaTO {
 	private String codItem;
 	private String cliente;
 	private String complemento;
+	private String observacoes;
 	
 	
 	public ItemVendaTO(Date data, double valorTotal,
 			double[] modosPgto, double quantidade, String unidade,
-			String codItem, String cliente, String complemento) {
+			String codItem, String cliente, String complemento, String observacoes) {
 		super();
 		this.data = data;
 		this.valorTotal = valorTotal;
@@ -28,6 +29,7 @@ public class ItemVendaTO {
 		this.codItem = codItem;
 		this.cliente = cliente;
 		this.complemento = complemento;
+		this.observacoes = observacoes;
 	}
 
 
@@ -109,5 +111,12 @@ public class ItemVendaTO {
 		this.complemento = complemento;
 	}
 	
+	public String getObservacoes() {
+		return observacoes;
+	}
+	
+	public void setObservacoes(String observacoes) {
+		this.observacoes = observacoes;
+	}
 	
 }

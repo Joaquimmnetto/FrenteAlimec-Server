@@ -53,13 +53,13 @@ public class ServerWorker implements Runnable {
 
 		} catch (IOException e) {
 			log.printException(e, command);
-			response = JSONUtils.gerarJSONFalha(e);
+			response = JSONUtils.criarJSONFalha(e);
 		} catch (ClassNotFoundException e) {
 			log.printException(e, command);
-			response = JSONUtils.gerarJSONFalha(e);
+			response = JSONUtils.criarJSONFalha(e);
 		} catch (JSONException e) {
 			log.printException(e, command);
-			response = JSONUtils.gerarJSONFalha(e);
+			response = JSONUtils.criarJSONFalha(e);
 		}
 		// send
 		try {

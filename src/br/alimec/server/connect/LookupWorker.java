@@ -40,14 +40,14 @@ public class LookupWorker implements Runnable {
 			DatagramPacket sendPack = new DatagramPacket(
 					responseStr.getBytes(), responseStr.length(),
 					recvPack.getAddress(), recvPack.getPort());
-			log.println("Enviando resposta:\n" + request.toString(4));
+			log.println("Enviando resposta:\n" + response.toString(4));
 			sock.send(sendPack);
 			
 			
 
 		} catch (IOException | ClassNotFoundException | JSONException e) {
 			log.printException(e, command);
-			JSONUtils.gerarJSONFalha(e);
+			JSONUtils.criarJSONFalha(e);
 		}
 		
 	}

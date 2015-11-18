@@ -1,34 +1,38 @@
 package br.alimec.server.main;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+
+
+
 
 
 import br.alimec.server.connect.LookupServer;
 import br.alimec.server.connect.Server;
 
 public class Main {
-
-	// TODO: STATUS ATUAL: TESTAR O DAO DAS PLANILHAS, CLIENTE-SERVIDOR ESTA
-	// OKAY :D
 	
 	private static int portaLookup = 9008;
 	private static int porta = 9009;
 	private static int threadPoolSize = 5;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException, UnknownHostException {
 
 		parseArgs(args);
-
-		Log log = new Log(System.out, System.err);
+		Log.generateNewStandardLog();
 		
-		log.println("Iniciando lookup na porta " + portaLookup);
+		Log.getStandardLog().println("O IP local é: "+InetAddress.getLocalHost());
+		
+		Log.getStandardLog().println("Iniciando lookup na porta " + portaLookup);
 		final LookupServer lookup = new LookupServer(portaLookup);
 		lookup.start();
 		
-		log.println("Iniciando Servidor na porta " + porta);
+		Log.getStandardLog().println("Iniciando servidor na porta " + porta);
 		final Server server = new Server(porta);
 		server.start();
+		
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			
@@ -36,9 +40,13 @@ public class Main {
 			public void run() {
 				lookup.stop();
 				server.stop();
+				Log.getStandardLog().println("Servidor encerrado com sucesso.");
 			}
 		}));
 		
+	
+		while(true){Thread.sleep(500);Thread.yield();}
+	
 	}
 
 	//

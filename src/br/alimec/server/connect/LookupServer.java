@@ -28,8 +28,7 @@ public class LookupServer {
 			sock = new DatagramSocket(lookupPort);
 			buffer = new byte[512];
 		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.getStandardLog().printException(e, null);
 		}
 	}
 
@@ -42,11 +41,11 @@ public class LookupServer {
 				public void run() {
 					while (!serverThread.isInterrupted() && running) {
 						LookupWorker worker = listen();
-						if (worker == null) {
-							continue;
+						
+						if (worker != null) {
+							workerExec.execute(worker);
 						}
 
-						workerExec.execute(worker);
 					}
 					sock.close();
 				}
@@ -67,12 +66,12 @@ public class LookupServer {
 		try {
 			sock.receive(pack);
 			new JSONObject(new String(pack.getData()));
-			return new LookupWorker(sock,pack);
+			return new LookupWorker(sock, pack);
 
 		} catch (IOException e1) {
-			e1.printStackTrace();
-		} catch (JSONException e) {
-		}
+			
+			Log.getStandardLog().printException(e1, null);
+		} catch (JSONException e) {/*DO nothing*/}
 
 		return null;
 

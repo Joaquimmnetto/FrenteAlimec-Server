@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import br.alimec.poiDAO.ItemVendaDAO;
 import br.alimec.server.main.JSONUtils;
+import br.alimec.server.notifications.Notificacoes;
 
 public class CommEnviarVenda extends Command {
 
@@ -21,7 +22,7 @@ public class CommEnviarVenda extends Command {
 	}
 
 	static enum ArgumentosItem {
-		DATA, QUANTIDADE, UNIDADE, CODITEM, CLIENTE, COMPLEMENTO, MEIO_PGTO, VALOR_TOTAL;
+		DATA, QUANTIDADE, UNIDADE, CODITEM, CLIENTE, COMPLEMENTO, MEIO_PGTO, VALOR_TOTAL, OBSERVACOES;
 		@Override
 		public String toString() {
 			return super.name().toLowerCase();
@@ -74,9 +75,10 @@ public class CommEnviarVenda extends Command {
 							.toString());
 					String complemento = item
 							.getString(ArgumentosItem.COMPLEMENTO.toString());
-
+					String observacoes = item.getString(ArgumentosItem.OBSERVACOES.toString());
+					
 					itemTOs.add(new ItemVendaTO(data, valorTotal, modosPgto,
-							quantidade, unidade, codItem, cliente, complemento));
+							quantidade, unidade, codItem, cliente, complemento,observacoes));
 				}
 				for (ItemVendaTO itemTO : itemTOs) {
 					ItemVendaDAO dao = ItemVendaDAO.getInstance(itemTO.getData());
@@ -84,15 +86,17 @@ public class CommEnviarVenda extends Command {
 					dao.addItemVenda(itemTO.getData(), itemTO.getModosPgto(),
 							itemTO.getQuantidade(), itemTO.getUnidade(),
 							itemTO.getCodItem(), itemTO.getCliente(),
-							itemTO.getComplemento());
+							itemTO.getComplemento(),itemTO.getObservacoes());
 				}
 			}
 			ItemVendaDAO.comitarTodos();
-			resp = JSONUtils.gerarJSONSucesso();
+			
+			Notificacoes.vendaSucedida();
+			resp = JSONUtils.criarJSONSucesso();
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			resp = JSONUtils.gerarJSONFalha(e);
+			resp = JSONUtils.criarJSONFalha(e);
 		}
 
 		return resp;

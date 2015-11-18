@@ -22,7 +22,7 @@ public class Server {
 		try {
 			sSock = new ServerSocket(porta);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.getStandardLog().printException(e);
 		}
 	}
 
@@ -48,7 +48,7 @@ public class Server {
 					try {
 						sSock.close();
 					} catch (IOException e) {
-						e.printStackTrace();
+						Log.getStandardLog().printException(e);
 					}
 				}
 			});
@@ -65,7 +65,7 @@ public class Server {
 		try {
 			return new ServerWorker(sSock.accept());
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.getStandardLog().printException(e);
 		}
 
 		return null;
