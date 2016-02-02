@@ -1,4 +1,4 @@
-package br.alimec.server.commands;
+package br.joaquimmnetto.server.commands.to;
 import java.util.Date;
 
 import br.alimec.poiDAO.ItemVendaDAO;

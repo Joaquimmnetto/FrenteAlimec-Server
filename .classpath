@@ -4,5 +4,6 @@
 	<classpathentry exported="true" kind="lib" path="org.json-20131017.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/FrenteAlimec - POIHandler"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SimpleJSONServer"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

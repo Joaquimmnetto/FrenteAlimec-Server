@@ -1,4 +1,12 @@
+#Java Class Files
 *.class
+
+#Aplication log files
+*.log
+
+#Excel XLS files 
+*.xls
+*.xlsx
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
